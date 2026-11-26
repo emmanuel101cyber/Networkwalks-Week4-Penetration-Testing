@@ -1,51 +1,112 @@
-# Reconnaissance and Information Gathering
+# NETWORKWALKS WEEK 4
+# RECONNAISSANCE AND INFORMATION GATHERING REPORT
 
-## 1. Project Information
+---
 
-| Field | Details |
+## 1. Assessment Overview
+
+| Assessment Information | Details |
 |---|---|
-| Project | Networkwalks Week 4 — Penetration Testing |
+| Programme | Networkwalks Cybersecurity Internship |
 | Batch | B083 |
-| Target | `https://medirozahospital.com` |
+| Project | Week 4 — Black-Box Penetration Testing |
+| Target Organisation | Mediroza General Hospital |
+| Target Domain | `medirozahospital.com` |
+| Target URL | `https://medirozahospital.com` |
 | Assessment Type | Black-Box Security Assessment |
-| Phase | Initial Reconnaissance |
-| Tester | Oluwaferanmi Idowu |
-| Environment | Kali Linux |
+| Assessment Phase | Initial Reconnaissance |
+| Operating System | Kali Linux |
+| Primary Tester | Oluwaferanmi Idowu |
+| Report Status | Initial Reconnaissance Completed |
 
-## 2. Objective
+## 2. Executive Summary
 
-The objective of this phase was to gather publicly accessible information about the target domain and establish an initial understanding of its external attack surface.
+This report documents the initial reconnaissance and information-gathering activities conducted as part of the Networkwalks Week 4 penetration-testing assignment.
 
-The reconnaissance activities focused on:
+The primary objective was to establish an initial understanding of the target's publicly observable infrastructure, DNS configuration, web technologies, HTTP behaviour, TLS certificate information, and homepage structure.
 
-- DNS enumeration.
-- Domain and IP address identification.
-- Web server fingerprinting.
-- HTTP response and header analysis.
-- HTTP protocol verification.
-- TLS certificate inspection.
-- Homepage structure analysis.
-- Identification of publicly referenced website paths and resources.
+The assessment employed several standard reconnaissance utilities available in Kali Linux, including `dig`, `WhatWeb`, `curl`, `OpenSSL`, `grep`, and `file`.
 
-All activities were conducted within the stated assessment scope.
+The activities identified the target's IPv4 address, authoritative name servers, mail exchange records, web server technology, supported HTTP protocols, TLS certificate details, and publicly referenced website paths.
 
-## 3. Tools and Technologies
+The reconnaissance phase established a baseline for subsequent vulnerability assessment activities.
 
-| Tool | Purpose |
+No confirmed security vulnerability was established solely through the activities documented in this report.
+
+## 3. Assessment Objectives
+
+The objectives of the reconnaissance phase were to:
+
+1. Identify publicly available DNS information associated with the target domain.
+2. Determine the target's IPv4 and IPv6 DNS resolution status.
+3. Identify publicly observable web server technologies.
+4. Inspect HTTP response headers and server behaviour.
+5. Verify HTTP/1.1 and HTTP/2 responses.
+6. Examine the target's TLS certificate information.
+7. Inspect the homepage's HTML structure.
+8. Identify publicly referenced website resources and authentication entry points.
+9. Document observations and supporting evidence for subsequent assessment phases.
+
+## 4. Scope and Authorisation
+
+The assessment was conducted under the scope provided for the Networkwalks Week 4 assignment.
+
+**Target:**
+`https://medirozahospital.com`
+
+The reconnaissance activities documented here were limited to information gathering and inspection of publicly accessible resources.
+
+The assessment did not include:
+
+- Denial-of-service testing.
+- Social engineering.
+- Unauthorised access to restricted systems.
+- Retrieval or publication of real patient records.
+- Disclosure of employee credentials or confidential personal information.
+- Testing outside the stated assessment scope.
+
+Any subsequent testing involving authentication, access controls, or sensitive information must use explicitly approved test accounts and synthetic data.
+
+## 5. Testing Environment and Tools
+
+### 5.1 Operating Environment
+
+The assessment was conducted using Kali Linux.
+
+The following commands were used to inspect the testing environment:
+
+```bash
+whoami
+hostname
+pwd
+ip -br addr
+```
+
+### 5.2 Tools Used
+
+| Tool | Function |
 |---|---|
-| Kali Linux | Penetration testing environment |
-| dig | DNS record enumeration |
-| WhatWeb | Web technology fingerprinting |
+| Kali Linux | Security testing environment |
+| dig | DNS enumeration and record inspection |
+| WhatWeb | Web server and technology fingerprinting |
 | curl | HTTP response and header inspection |
 | OpenSSL | TLS certificate inspection |
-| grep | HTML content and resource analysis |
-| file | Identification of downloaded file types |
+| grep | HTML content and resource extraction |
+| file | File-type identification |
 
-## 4. DNS Enumeration
+### 5.3 Environment Evidence
+
+**Evidence E01 — Kali Linux Testing Environment**
+
+![Kali Linux Environment](screenshots/01-kali-environment.png)
+
+[Open E01 — Kali Linux Environment](screenshots/01-kali-environment.png)
+
+## 6. DNS Enumeration
 
 DNS enumeration was performed using `dig` to identify publicly available DNS records associated with the target domain.
 
-### 4.1 A Record Enumeration
+### 6.1 IPv4 Address Enumeration
 
 **Command:**
 
@@ -55,14 +116,23 @@ dig medirozahospital.com A
 
 **Results:**
 
-- Status: `NOERROR`
-- IPv4 Address: `199.188.201.16`
+| Attribute | Observation |
+|---|---|
+| Query Type | A |
+| DNS Status | NOERROR |
+| IPv4 Address | `199.188.201.16` |
 
-The A record resolved the target domain to the identified IPv4 address.
+The DNS query successfully resolved the target domain to the IPv4 address `199.188.201.16`.
 
-**Evidence:** `screenshots/02-dns-a-record.png`
+This address represents the IPv4 endpoint returned by DNS during the assessment.
 
-### 4.2 Name Server Enumeration
+**Evidence E02 — DNS A Record**
+
+![DNS A Record](screenshots/02-dns-a-record.png)
+
+[Open E02 — DNS A Record](screenshots/02-dns-a-record.png)
+
+### 6.2 Name Server Enumeration
 
 **Command:**
 
@@ -72,12 +142,16 @@ dig medirozahospital.com NS
 
 **Identified Name Servers:**
 
-- `dns1.namecheaphosting.com`
-- `dns2.namecheaphosting.com`
+| No. | Name Server |
+|---|---|
+| 1 | `dns1.namecheaphosting.com` |
+| 2 | `dns2.namecheaphosting.com` |
 
-These records identify the name servers responsible for the domain's DNS service.
+The results identified two name servers associated with the target domain.
 
-### 4.3 Mail Exchange Enumeration
+These records provide information about the domain's DNS infrastructure.
+
+### 6.3 Mail Exchange Enumeration
 
 **Command:**
 
@@ -85,7 +159,7 @@ These records identify the name servers responsible for the domain's DNS service
 dig medirozahospital.com MX
 ```
 
-**Identified Mail Servers:**
+**Identified Mail Exchange Records:**
 
 | Priority | Mail Server |
 |---:|---|
@@ -93,11 +167,9 @@ dig medirozahospital.com MX
 | 10 | `mx2-hosting.jellyfish.systems` |
 | 20 | `mx3-hosting.jellyfish.systems` |
 
-The MX records reveal the mail servers configured to receive email for the domain.
+The MX records identify the mail servers configured to receive email for the target domain.
 
-**Evidence:** `screenshots/03-dns-ns-mx-records.png`
-
-### 4.4 IPv6 Record Enumeration
+### 6.4 IPv6 Enumeration
 
 **Command:**
 
@@ -105,42 +177,62 @@ The MX records reveal the mail servers configured to receive email for the domai
 dig medirozahospital.com AAAA
 ```
 
+**Observation:**
+
 The query returned `NOERROR` but did not return any AAAA records.
 
-This indicates that no IPv6 address was returned for the queried domain during this test.
+This indicates that no IPv6 address was returned for the queried domain during the assessment.
 
-## 5. Web Server Fingerprinting
+It does not establish whether IPv6 is unavailable elsewhere in the target's infrastructure.
 
-Web technology identification was performed using WhatWeb.
+**Evidence E03 — DNS Name Server and Mail Exchange Records**
+
+![DNS NS and MX Records](screenshots/03-dns-ns-mx-records.png)
+
+[Open E03 — DNS NS and MX Records](screenshots/03-dns-ns-mx-records.png)
+
+## 7. Web Server Fingerprinting
+
+Web technology fingerprinting was conducted using WhatWeb to identify technologies and server information exposed by the target.
 
 **Command:**
 
 ```bash
-whatweb https://medirozahospital.com
+whatweb -v https://medirozahospital.com
 ```
 
-### Observations
+### 7.1 Observed Results
 
 | Attribute | Result |
 |---|---|
-| Target | `medirozahospital.com` |
-| IP Address | `199.188.201.16` |
+| Target Domain | `medirozahospital.com` |
+| Resolved IP | `199.188.201.16` |
 | Web Server | LiteSpeed |
 | Identified Technology | HTML5 |
-| Initial WhatWeb Response | 403 Forbidden |
+| Initial HTTP Response | 403 Forbidden |
 | Additional Header | `x-turbo-charged-by` |
+
+### 7.2 Analysis
 
 WhatWeb identified LiteSpeed as the web server technology.
 
-The initial request returned a `403 Forbidden` response. However, subsequent requests using curl returned successful responses.
+The initial WhatWeb request returned an HTTP `403 Forbidden` response.
 
-This inconsistency was recorded for further investigation rather than classified as a confirmed vulnerability.
+However, subsequent requests using curl returned successful HTTP responses.
 
-**Evidence:** `screenshots/04-whatweb-fingerprinting.png`
+This difference indicates that the server's response varied between requests or request conditions. The observation was recorded for further investigation.
 
-## 6. HTTP Response and Protocol Analysis
+The response inconsistency was not classified as a vulnerability because the available evidence does not establish its underlying cause.
 
-HTTP response headers were inspected using curl.
+**Evidence E04 — WhatWeb Fingerprinting**
+
+![WhatWeb Results](screenshots/04-whatweb-fingerprinting.png)
+
+[Open E04 — WhatWeb Fingerprinting](screenshots/04-whatweb-fingerprinting.png)
+
+## 8. HTTP Response and Header Analysis
+
+HTTP response headers were inspected using curl to identify server information and other response metadata.
 
 **Command:**
 
@@ -148,17 +240,37 @@ HTTP response headers were inspected using curl.
 curl -I https://medirozahospital.com
 ```
 
-### Observations
+### 8.1 Observed Response Information
 
-The response included:
+| Header / Attribute | Observed Value |
+|---|---|
+| HTTP Status | `200 OK` |
+| Content-Type | `text/html` |
+| Server | LiteSpeed |
+| Content-Length | `5445` bytes |
+| Additional Header | `x-turbo-charged-by: LiteSpeed` |
 
-- HTTP status: `200 OK`
-- Content type: `text/html`
-- Web server: LiteSpeed
-- Content length: `5445` bytes
-- Additional header: `x-turbo-charged-by`
+### 8.2 Analysis
 
-### 6.1 HTTP/1.1 Verification
+The response indicated that the target returned an HTTP `200 OK` status for this request.
+
+The server identified itself as LiteSpeed and returned an HTML document.
+
+The response headers were recorded as part of the initial server configuration and information-disclosure review.
+
+The presence or absence of individual headers should not independently be treated as proof of a vulnerability. A broader security-header assessment would be required.
+
+**Evidence E05 — HTTP Response Headers**
+
+![HTTP Response Headers](screenshots/05-http-headers.png)
+
+[Open E05 — HTTP Response Headers](screenshots/05-http-headers.png)
+
+## 9. HTTP Protocol Verification
+
+The target was tested using HTTP/1.1 and HTTP/2 to observe the server's response over both protocols.
+
+### 9.1 HTTP/1.1 Verification
 
 **Command:**
 
@@ -166,9 +278,11 @@ The response included:
 curl --http1.1 -sS -D - -o /dev/null https://medirozahospital.com
 ```
 
-**Result:** `HTTP/1.1 200 OK`
+**Observed Result:**
 
-### 6.2 HTTP/2 Verification
+`HTTP/1.1 200 OK`
+
+### 9.2 HTTP/2 Verification
 
 **Command:**
 
@@ -176,20 +290,27 @@ curl --http1.1 -sS -D - -o /dev/null https://medirozahospital.com
 curl --http2 -sS -D - -o /dev/null https://medirozahospital.com
 ```
 
-**Result:** `HTTP/2 200`
+**Observed Result:**
 
-Both protocol tests returned successful responses.
+`HTTP/2 200`
 
-These results confirm that the server responded over HTTP/1.1 and HTTP/2 during the assessment.
+### 9.3 Analysis
 
-**Evidence:**
+Both protocol tests returned successful HTTP responses.
 
-- `screenshots/05-http-headers.png`
-- `screenshots/06-http-protocol-testing.png`
+The results indicate that the target responded to requests made using HTTP/1.1 and HTTP/2 during the assessment.
 
-## 7. TLS Certificate Inspection
+These checks were limited to protocol response verification and did not constitute a comprehensive protocol security assessment.
 
-The target's TLS certificate was inspected using OpenSSL.
+**Evidence E06 — HTTP Protocol Verification**
+
+![HTTP Protocol Testing](screenshots/06-http-protocol-testing.png)
+
+[Open E06 — HTTP Protocol Testing](screenshots/06-http-protocol-testing.png)
+
+## 10. TLS Certificate Inspection
+
+The target's TLS certificate was inspected using OpenSSL to identify its subject, issuer, and validity period.
 
 **Command:**
 
@@ -197,24 +318,32 @@ The target's TLS certificate was inspected using OpenSSL.
 echo | openssl s_client -connect medirozahospital.com:443 -servername medirozahospital.com 2>/dev/null | openssl x509 -noout -subject -issuer -dates
 ```
 
-### Certificate Information
+### 10.1 Certificate Information
 
-| Attribute | Result |
+| Attribute | Observed Value |
 |---|---|
-| Subject | `CN=medirozahospital.com` |
-| Issuer | SSL.com TLS Issuing RSA CA R1 |
+| Certificate Subject | `CN=medirozahospital.com` |
+| Certificate Issuer | SSL.com TLS Issuing RSA CA R1 |
 | Valid From | 14 August 2026 |
 | Expiry Date | 28 February 2027 |
 
-The certificate's validity dates were checked and found to include the assessment date.
+### 10.2 Analysis
 
-This inspection confirms the certificate's subject, issuer, and validity period. It does not constitute a complete assessment of the server's TLS configuration.
+The certificate information confirmed that the certificate was issued for `medirozahospital.com`.
 
-**Evidence:** `screenshots/07-tls-certificate.png`
+Its validity period included the assessment date.
 
-## 8. Homepage Structure Analysis
+This inspection was limited to certificate identity, issuer, and validity dates. It did not independently establish the security of the complete TLS configuration, supported cipher suites, or certificate chain validation.
 
-The homepage was downloaded locally for basic HTML inspection.
+**Evidence E07 — TLS Certificate Inspection**
+
+![TLS Certificate](screenshots/07-tls-certificate.png)
+
+[Open E07 — TLS Certificate Inspection](screenshots/07-tls-certificate.png)
+
+## 11. Homepage Structure Analysis
+
+The target homepage was downloaded locally for basic HTML inspection.
 
 **Command:**
 
@@ -224,29 +353,59 @@ curl -sS https://medirozahospital.com -o evidence/homepage.html
 
 The downloaded file was approximately 5,445 bytes.
 
-### 8.1 Page Identification
+The file was subsequently examined using standard Linux utilities.
 
-The extracted HTML title was:
+### 11.1 File Identification
+
+**Command:**
+
+```bash
+file evidence/homepage.html
+```
+
+**Observed Result:**
+
+The file was identified as an HTML document containing ASCII text.
+
+### 11.2 Page Title Extraction
+
+**Command:**
+
+```bash
+grep -oi '<title>.*</title>' evidence/homepage.html
+```
+
+**Extracted Title:**
 
 `Mediroza General Hospital | Compassionate Care, Advanced Medicine`
 
-### 8.2 HTML Form Inspection
+The extracted title provided the page's identifying information.
 
-The following command was used to identify HTML form elements:
+### 11.3 HTML Form Inspection
+
+**Command:**
 
 ```bash
 grep -oi '<form[^>]*>' evidence/homepage.html
 ```
 
-No form opening tags were returned.
+**Observation:**
 
-This observation applies only to the downloaded homepage. It does not establish that forms are absent from other pages or dynamically loaded content.
+No HTML form opening tags were returned.
 
-### 8.3 Identified Website Paths
+This finding applies only to the downloaded homepage HTML. It does not establish that forms are absent from other pages or dynamically loaded content.
 
-The following paths were identified in the homepage's HTML links:
+### 11.4 Identification of Referenced Website Paths
 
-| Path | Observation |
+**Command:**
+
+```bash
+grep -oEi 'href="[^"]+"' evidence/homepage.html
+```
+
+The following paths were identified:
+
+| Referenced Path | Description |
 |---|---|
 | `/styles.css` | Stylesheet resource |
 | `/staff/login.php` | Staff login entry point |
@@ -256,86 +415,167 @@ The following paths were identified in the homepage's HTML links:
 | `/about.html` | About page |
 | `/doctors.html` | Doctors page |
 
-The staff and patient login paths were recorded as publicly referenced entry points for further authorised assessment.
+The staff and patient login paths were recorded as publicly referenced authentication entry points.
 
-Their presence alone does not establish a security vulnerability.
+Their presence alone does not establish a security vulnerability or demonstrate that authentication can be bypassed.
 
-### 8.4 JavaScript Reference Inspection
+### 11.5 JavaScript Reference Inspection
 
-The homepage was inspected for external JavaScript references using:
+**Command:**
 
 ```bash
 grep -oEi 'src="[^"]+\.js[^"]*"'
 ```
 
-No matching external JavaScript source references were returned.
+**Observation:**
 
-This result is limited to the specific HTML pattern searched and does not rule out inline JavaScript or dynamically loaded scripts.
+No matching external JavaScript source references were returned by the search.
 
-**Evidence:** `screenshots/08-homepage-inspection.png`
+This result is limited to the HTML pattern examined. It does not rule out inline JavaScript, dynamically loaded scripts, or other script-loading mechanisms.
 
-## 9. Summary of Reconnaissance Findings
+### 11.6 Analysis
 
-| No. | Finding | Observation |
-|---:|---|---|
-| 1 | Domain resolution | Resolved to `199.188.201.16` |
-| 2 | Name servers | Two name servers identified |
-| 3 | Mail infrastructure | Three MX records identified |
-| 4 | Web server | LiteSpeed identified |
-| 5 | HTTP protocols | HTTP/1.1 and HTTP/2 returned successful responses |
-| 6 | TLS certificate | Validity period includes assessment date |
-| 7 | Authentication paths | Staff and patient login paths identified |
-| 8 | Homepage inspection | No HTML form opening tags found in downloaded homepage |
-| 9 | Response inconsistency | WhatWeb returned 403 while subsequent curl tests returned 200 |
+The homepage inspection provided an initial understanding of the publicly referenced resources and navigation structure.
 
-## 10. Preliminary Security Observations
+The identification of staff and patient login paths provides useful context for subsequent authorised assessment of authentication and access-control mechanisms.
 
-The reconnaissance phase identified publicly observable infrastructure information and website entry points that may be relevant to subsequent security assessment.
+No attempt to access confidential patient information or employee records was made during this reconnaissance activity.
 
-The following areas were noted for further authorised review:
+**Evidence E08 — Homepage HTML Inspection**
 
-- Authentication entry points for staff and patients.
-- HTTP response and security-header behaviour.
-- Server configuration and information exposure.
-- Access-control behaviour of publicly referenced resources.
+![Homepage HTML Inspection](screenshots/08-homepage-inspection.png)
 
-No confirmed security vulnerability was established solely from the reconnaissance activities documented here.
+[Open E08 — Homepage HTML Inspection](screenshots/08-homepage-inspection.png)
 
-Any further testing involving authentication, access control, or sensitive information must remain within the written authorisation and use approved test accounts and synthetic records.
+## 12. Consolidated Reconnaissance Findings
 
-## 11. Evidence and Supporting Screenshots
+The following table summarises the principal observations established during the reconnaissance phase.
 
-The following screenshots provide visual evidence of the reconnaissance activities performed during this assessment.
+| ID | Area | Finding | Status |
+|---|---|---|---|
+| R01 | DNS | Domain resolved to `199.188.201.16` | Observed |
+| R02 | DNS | Two name servers identified | Observed |
+| R03 | DNS | Three mail exchange records identified | Observed |
+| R04 | DNS | No AAAA record returned | Observed |
+| R05 | Web Technology | LiteSpeed server identified | Observed |
+| R06 | HTTP | HTTP headers returned server information | Observed |
+| R07 | HTTP | HTTP/1.1 returned `200 OK` | Observed |
+| R08 | HTTP | HTTP/2 returned `200` | Observed |
+| R09 | TLS | Certificate subject, issuer, and validity dates identified | Observed |
+| R10 | Homepage | No HTML form opening tags found in downloaded homepage | Observed |
+| R11 | Homepage | Staff and patient login paths identified | Observed |
+| R12 | Web Response | WhatWeb returned 403 while subsequent curl requests returned 200 | Requires further investigation |
 
-| Evidence ID | Screenshot | Description |
-|---|---|---|
-| E01 | `01-kali-environment.png` | Kali Linux testing environment |
-| E02 | `02-dns-a-record.png` | DNS A record resolution |
-| E03 | `03-dns-ns-mx-records.png` | Name server and mail exchange records |
-| E04 | `04-whatweb-fingerprinting.png` | Web server fingerprinting results |
-| E05 | `05-http-headers.png` | HTTP response headers |
-| E06 | `06-http-protocol-testing.png` | HTTP/1.1 and HTTP/2 response tests |
-| E07 | `07-tls-certificate.png` | TLS certificate inspection |
-| E08 | `08-homepage-inspection.png` | Homepage HTML analysis |
+**Important distinction:** These are reconnaissance observations, not confirmed vulnerabilities. Further validation is necessary before assigning security severity or declaring a security weakness.
 
-All screenshots should be stored in the accompanying `screenshots/` directory.
+## 13. Preliminary Security Observations
 
-Evidence must be reviewed before publication to ensure that credentials, patient information, employee information, and other confidential data are not disclosed.
+The reconnaissance activities established several areas that may warrant further authorised investigation.
 
-## 12. Conclusion
+### 13.1 Authentication Entry Points
 
-The initial reconnaissance phase established a baseline understanding of the target's publicly observable infrastructure, DNS configuration, web technologies, TLS certificate information, HTTP behaviour, and homepage structure.
+The homepage references separate staff and patient login paths.
 
-The assessment identified the target's IPv4 address, name servers, mail servers, LiteSpeed web server, supported HTTP protocols, and publicly referenced staff and patient login paths.
+These endpoints may be relevant to a subsequent assessment of authentication controls, session management, and access-control behaviour.
 
-These observations provide a foundation for the subsequent vulnerability assessment phase.
+### 13.2 HTTP Response Behaviour
 
-No real patient records, employee information, credentials, or other confidential information were retrieved or included in this documentation.
+The initial WhatWeb request returned `403 Forbidden`, while subsequent curl requests returned `200 OK`.
+
+The inconsistent responses should be investigated carefully before drawing conclusions about access restrictions or server behaviour.
+
+### 13.3 Server Information Exposure
+
+The server disclosed LiteSpeed information through its HTTP response.
+
+This information may assist in understanding the target's technology stack but is not, by itself, evidence of a vulnerability.
+
+### 13.4 TLS Configuration
+
+The certificate's subject, issuer, and validity period were identified.
+
+A more comprehensive TLS configuration review would be needed to assess supported protocols, cipher suites, and certificate-chain validation.
+
+## 14. Limitations
+
+The findings in this report are subject to the following limitations:
+
+1. The reconnaissance activities were limited to the information and responses observed during testing.
+2. DNS results reflect the records returned at the time of the queries.
+3. WhatWeb and curl returned different HTTP responses during testing.
+4. Homepage HTML inspection was limited to the locally downloaded homepage.
+5. The presence of login paths does not establish the security or vulnerability of those authentication mechanisms.
+6. TLS inspection was limited to certificate metadata.
+7. No comprehensive vulnerability scan or exploitation assessment is represented by this reconnaissance report.
+
+These limitations should be considered when interpreting the findings.
+
+## 15. Evidence Register
+
+The following evidence files support the activities documented in this report.
+
+All evidence files are located in:
+
+`01-Reconnaissance/screenshots/`
+
+| Evidence ID | Evidence Filename | Description | Evidence Link |
+|---|---|---|---|
+| E01 | `01-kali-environment.png` | Kali Linux testing environment | [View E01](screenshots/01-kali-environment.png) |
+| E02 | `02-dns-a-record.png` | DNS IPv4 address resolution | [View E02](screenshots/02-dns-a-record.png) |
+| E03 | `03-dns-ns-mx-records.png` | DNS name server and MX records | [View E03](screenshots/03-dns-ns-mx-records.png) |
+| E04 | `04-whatweb-fingerprinting.png` | WhatWeb technology fingerprinting | [View E04](screenshots/04-whatweb-fingerprinting.png) |
+| E05 | `05-http-headers.png` | HTTP response header inspection | [View E05](screenshots/05-http-headers.png) |
+| E06 | `06-http-protocol-testing.png` | HTTP/1.1 and HTTP/2 verification | [View E06](screenshots/06-http-protocol-testing.png) |
+| E07 | `07-tls-certificate.png` | TLS certificate inspection | [View E07](screenshots/07-tls-certificate.png) |
+| E08 | `08-homepage-inspection.png` | Homepage HTML analysis | [View E08](screenshots/08-homepage-inspection.png) |
+
+### Evidence Handling
+
+All evidence should be reviewed before publication.
+
+Screenshots and supporting files must not expose:
+
+- Patient records or medical information.
+- Employee personal information.
+- Passwords, authentication tokens, or session cookies.
+- Confidential business information.
+- Other sensitive information not approved for publication.
+
+Only sanitised evidence approved for publication should be included in a public GitHub repository.
+
+## 16. Conclusion
+
+The initial reconnaissance phase established a baseline understanding of the target's publicly observable infrastructure and web application characteristics.
+
+The assessment identified the target's IPv4 address, name servers, mail exchange records, LiteSpeed web server, HTTP protocol responses, TLS certificate information, and publicly referenced website paths.
+
+The homepage inspection also identified separate staff and patient login entry points, which may be relevant to subsequent authorised security testing.
+
+The findings documented in this report provide a foundation for the next phase of the Networkwalks Week 4 assessment.
+
+No confirmed security vulnerability was established solely through the reconnaissance activities described here.
+
+No real patient records, employee information, credentials, or confidential medical information were retrieved or published.
 
 ---
 
-**Assessment Status:** Initial Reconnaissance Completed  
-**Next Phase:** Vulnerability Assessment  
-**Document Owner:** Oluwaferanmi Idowu  
+## 17. Assessment Status
+
+| Phase | Status |
+|---|---|
+| Initial DNS Enumeration | Completed |
+| Web Server Fingerprinting | Completed |
+| HTTP Header Inspection | Completed |
+| HTTP Protocol Verification | Completed |
+| TLS Certificate Inspection | Completed |
+| Homepage Structure Analysis | Completed |
+| Evidence Documentation | Pending final screenshot upload and verification |
+| Initial Reconnaissance Report | Documented |
+| Vulnerability Assessment | Next Phase |
+
+**Prepared by:** Oluwaferanmi Idowu  
 **Programme:** Networkwalks Cybersecurity Internship  
-**Batch:** B083
+**Batch:** B083  
+**Project:** Week 4 — Black-Box Penetration Testing
+
+**End of Report**
